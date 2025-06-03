@@ -214,7 +214,7 @@ export default function CollageEditor() {
       window.removeEventListener("message", receiveMessage);
       clearInterval(interval);
     };
-  }, []); // ← important: don't depend on strokes etc here!
+  }, [getCurrentCanvasState]);
 
   const clampToBounds = (x, y, width, height, canvasWidth, canvasHeight) => {
     const clampedX = Math.max(0, Math.min(x, canvasWidth - width));

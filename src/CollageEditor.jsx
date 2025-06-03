@@ -47,7 +47,13 @@ export default function CollageEditor() {
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
 
     const interval = setInterval(() => {
-      const data = getCurrentCanvasState();
+      const data = {
+        strokes,
+        tapes,
+        imageElements,
+        stickers,
+        texts,
+      };
       console.log("📡 Posting SAVE_PROJECT", data);
       window.parent.postMessage(
         {
@@ -62,7 +68,7 @@ export default function CollageEditor() {
       window.removeEventListener("message", receiveMessage);
       clearInterval(interval);
     };
-  }, []);
+  }, [strokes, tapes, imageElements, stickers, texts]);
 
   //for git paths
   const base = import.meta.env.BASE_URL;

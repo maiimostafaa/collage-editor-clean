@@ -138,15 +138,17 @@ export default function CollageEditor() {
   );
 
   //for bubble integration
-  function getCurrentCanvasState() {
-    return {
+  const getCurrentCanvasState = useCallback(
+    () => ({
       strokes,
       tapes,
       imageElements,
       stickers,
       texts,
-    };
-  }
+    }),
+    [strokes, tapes, imageElements, stickers, texts]
+  );
+
   function loadFromJson(data) {
     console.log("🧩 Loading project:", data);
 
@@ -190,33 +192,14 @@ export default function CollageEditor() {
   useEffect(() => {
     const receiveMessage = (event) => {
       if (event.data.type === "LOAD_PROJECT") {
-        let payload = event.data.payload;
-        if (typeof payload === "string") {
-          try {
-            payload = JSON.parse(payload);
-          } catch (err) {
-            console.error("❌ Failed to parse string payload:", payload, err);
-            return;
-          }
-        }
-
-        console.log("📥 Received LOAD_PROJECT:", payload);
-        loadFromJson(payload);
+        console.log("📥 Received LOAD_PROJECT:", event.data.payload);
+        loadFromJson(event.data.payload);
       }
     };
     window.addEventListener("message", receiveMessage);
-    window.parent.postMessage({ type: "IFRAME_READY" }, "*");
 
     const interval = setInterval(() => {
-      console.log("📤 Syncing canvasData: ", JSON.stringify(data));
-
-      const data = {
-        strokes,
-        tapes,
-        imageElements,
-        stickers,
-        texts,
-      };
+      const data = getCurrentCanvasState();
       console.log("📡 Posting SAVE_PROJECT", data);
       window.parent.postMessage(
         {
@@ -231,7 +214,7 @@ export default function CollageEditor() {
       window.removeEventListener("message", receiveMessage);
       clearInterval(interval);
     };
-  }, [strokes, tapes, imageElements, stickers, texts]);
+  }, []); // ← important: don't depend on strokes etc here!
 
   const clampToBounds = (x, y, width, height, canvasWidth, canvasHeight) => {
     const clampedX = Math.max(0, Math.min(x, canvasWidth - width));

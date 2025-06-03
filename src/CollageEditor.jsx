@@ -28,8 +28,8 @@ export default function CollageEditor() {
         loadFromJson(event.data.payload);
       }
     };
-
     window.addEventListener("message", receiveMessage);
+    console.log("📡 Posting SAVE_PROJECT", data);
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
 
     const interval = setInterval(() => {

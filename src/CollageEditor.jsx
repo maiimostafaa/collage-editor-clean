@@ -29,11 +29,11 @@ export default function CollageEditor() {
       }
     };
     window.addEventListener("message", receiveMessage);
-    console.log("📡 Posting SAVE_PROJECT", data);
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
 
     const interval = setInterval(() => {
       const data = getCurrentCanvasState();
+      console.log("📡 Posting SAVE_PROJECT", data);
       window.parent.postMessage(
         {
           type: "SAVE_PROJECT",

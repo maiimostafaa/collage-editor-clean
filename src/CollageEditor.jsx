@@ -148,7 +148,24 @@ export default function CollageEditor() {
     };
   }
   function loadFromJson(data) {
-    console.log("Loading project:", data);
+    console.log("🧩 Loading project:", data);
+
+    if (!data || typeof data !== "object") {
+      console.warn("⚠️ loadFromJson called with invalid data:", data);
+      return;
+    }
+
+    const isEmpty =
+      (!data.strokes || data.strokes.length === 0) &&
+      (!data.tapes || data.tapes.length === 0) &&
+      (!data.imageElements || data.imageElements.length === 0) &&
+      (!data.stickers || data.stickers.length === 0) &&
+      (!data.texts || data.texts.length === 0);
+
+    if (isEmpty) {
+      console.warn("⚠️ Skipping loadFromJson — all fields are empty.");
+      return;
+    }
 
     // First, clear everything to force state update
     setStrokes([]);
@@ -173,14 +190,26 @@ export default function CollageEditor() {
   useEffect(() => {
     const receiveMessage = (event) => {
       if (event.data.type === "LOAD_PROJECT") {
-        console.log(" Received LOAD_PROJECT:", event.data.payload);
-        loadFromJson(event.data.payload);
+        let payload = event.data.payload;
+        if (typeof payload === "string") {
+          try {
+            payload = JSON.parse(payload);
+          } catch (err) {
+            console.error("❌ Failed to parse string payload:", payload, err);
+            return;
+          }
+        }
+
+        console.log("📥 Received LOAD_PROJECT:", payload);
+        loadFromJson(payload);
       }
     };
     window.addEventListener("message", receiveMessage);
     window.parent.postMessage({ type: "IFRAME_READY" }, "*");
 
     const interval = setInterval(() => {
+      console.log("📤 Syncing canvasData: ", JSON.stringify(data));
+
       const data = {
         strokes,
         tapes,

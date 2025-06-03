@@ -14,7 +14,7 @@ export default function CollageEditor() {
     };
   }
   function loadFromJson(data) {
-    console.log("🧠 Loading project:", data);
+    console.log("Loading project:", data);
 
     // First, clear everything to force state update
     setStrokes([]);

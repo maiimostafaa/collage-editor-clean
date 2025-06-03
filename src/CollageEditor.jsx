@@ -3,6 +3,28 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 
 export default function CollageEditor() {
+  //for bubble integration
+  function getCurrentCanvasState() {
+    return {
+      strokes,
+      tapes,
+      imageElements,
+      stickers,
+      texts,
+    };
+  }
+  function loadFromJson(data) {
+    if (!data) return;
+    if (data.strokes) setStrokes(data.strokes);
+    if (data.tapes) setTapes(data.tapes);
+    if (data.imageElements) setImageElements(data.imageElements);
+    if (data.stickers) setStickers(data.stickers);
+    if (data.texts) setTexts(data.texts);
+  }
+
+  //for git paths
+  const base = import.meta.env.BASE_URL;
+
   //for canvas
   const canvasRef = useRef(null);
   const [canvasSize, setCanvasSize] = useState({
@@ -38,36 +60,36 @@ export default function CollageEditor() {
   const [tapeColor, setTapeColor] = useState("#C0C0C0");
   const [tapePattern, setTapePattern] = useState("washi-1"); // pattern name
   const patternImages = {
-    "washi-1": "/patterns/washi-1.png",
-    "washi-2": "/patterns/washi-2.png",
-    "washi-3": "/patterns/washi-3.png",
-    "washi-4": "/patterns/washi-4.png",
-    "washi-5": "/patterns/washi-5.png",
-    "washi-6": "/patterns/washi-6.png",
-    "washi-7": "/patterns/washi-7.png",
-    "washi-8": "/patterns/washi-8.png",
-    "washi-9": "/patterns/washi-9.png",
-    "washi-10": "/patterns/washi-10.png",
-    "washi-11": "/patterns/washi-11.png",
-    "washi-12": "/patterns/washi-12.png",
-    "washi-13": "/patterns/washi-13.png",
-    "washi-14": "/patterns/washi-14.png",
-    "washi-15": "/patterns/washi-15.png",
-    "washi-16": "/patterns/washi-16.png",
-    "washi-17": "/patterns/washi-17.png",
-    "washi-18": "/patterns/washi-18.png",
-    "washi-19": "/patterns/washi-19.png",
-    "washi-20": "/patterns/washi-20.png",
-    "washi-21": "/patterns/washi-21.png",
-    "washi-22": "/patterns/washi-22.png",
-    "washi-23": "/patterns/washi-23.png",
-    "washi-24": "/patterns/washi-24.png",
-    "washi-25": "/patterns/washi-25.png",
-    "washi-26": "/patterns/washi-26.png",
-    "washi-27": "/patterns/washi-27.png",
-    "washi-28": "/patterns/washi-28.png",
-    "washi-29": "/patterns/washi-29.png",
-    "washi-30": "/patterns/washi-30.png",
+    "washi-1": `${base}patterns/washi-1.png`,
+    "washi-2": `${base}patterns/washi-2.png`,
+    "washi-3": `${base}patterns/washi-3.png`,
+    "washi-4": `${base}patterns/washi-4.png`,
+    "washi-5": `${base}patterns/washi-5.png`,
+    "washi-6": `${base}patterns/washi-6.png`,
+    "washi-7": `${base}patterns/washi-7.png`,
+    "washi-8": `${base}patterns/washi-8.png`,
+    "washi-9": `${base}patterns/washi-9.png`,
+    "washi-10": `${base}patterns/washi-10.png`,
+    "washi-11": `${base}patterns/washi-11.png`,
+    "washi-12": `${base}patterns/washi-12.png`,
+    "washi-13": `${base}patterns/washi-13.png`,
+    "washi-14": `${base}patterns/washi-14.png`,
+    "washi-15": `${base}patterns/washi-15.png`,
+    "washi-16": `${base}patterns/washi-16.png`,
+    "washi-17": `${base}patterns/washi-17.png`,
+    "washi-18": `${base}patterns/washi-18.png`,
+    "washi-19": `${base}patterns/washi-19.png`,
+    "washi-20": `${base}patterns/washi-20.png`,
+    "washi-21": `${base}patterns/washi-21.png`,
+    "washi-22": `${base}patterns/washi-22.png`,
+    "washi-23": `${base}patterns/washi-23.png`,
+    "washi-24": `${base}patterns/washi-24.png`,
+    "washi-25": `${base}patterns/washi-25.png`,
+    "washi-26": `${base}patterns/washi-26.png`,
+    "washi-27": `${base}patterns/washi-27.png`,
+    "washi-28": `${base}patterns/washi-28.png`,
+    "washi-29": `${base}patterns/washi-29.png`,
+    "washi-30": `${base}patterns/washi-30.png`,
   };
   const [loadedPatterns, setLoadedPatterns] = useState({});
   useEffect(() => {
@@ -252,7 +274,7 @@ export default function CollageEditor() {
     if (currentTool !== "pencil") return;
 
     recordHistory();
-    setShowPenSettings(false); // ✅ hide panel when drawing begins
+    setShowPenSettings(false); // hide panel when drawing begins
 
     setStrokes((prev) => [
       ...prev,
@@ -299,7 +321,6 @@ export default function CollageEditor() {
     }
 
     setIsDrawing(false);
-    console.log("🛑 stopDrawing");
   };
 
   const drawGrid = (ctx, width, height, spacing = 40) => {
@@ -376,7 +397,7 @@ export default function CollageEditor() {
     canvas.width = width;
     canvas.height = height;
 
-    setCanvasSize({ width, height }); // ✅ trigger re-render
+    setCanvasSize({ width, height }); // trigger re-render
   };
 
   useEffect(() => {
@@ -460,7 +481,7 @@ export default function CollageEditor() {
             ctx.save();
             ctx.scale(1, 50 / img.height); // scale vertically to fit 50px tape height
             ctx.fillStyle = patternFill;
-            ctx.fillRect(0, 0, length, img.height); // draw at 0 instead of -25
+            ctx.fillRect(0, 0, length, img.height);
             ctx.restore();
           }
         } else {
@@ -475,18 +496,52 @@ export default function CollageEditor() {
 
       ctx.restore();
     });
-  }, [strokes, tapes, canvasSize]); // ✅ triggers redraw on resize
+  }, [strokes, tapes, canvasSize]); //  triggers redraw on resize
+
+  useEffect(() => {
+    const receiveMessage = (event) => {
+      if (event.data.type === "LOAD_PROJECT") {
+        loadFromJson(event.data.payload);
+      }
+    };
+
+    window.addEventListener("message", receiveMessage);
+
+    const interval = setInterval(() => {
+      const data = getCurrentCanvasState();
+      window.parent.postMessage(
+        {
+          type: "SAVE_PROJECT",
+          payload: data,
+        },
+        "*"
+      );
+    }, 5000); // every 5 seconds
+
+    return () => {
+      window.removeEventListener("message", receiveMessage);
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <div className="w-screen h-screen flex overflow-hidden">
-      {/* ─────────── Sidebar (fixed, unaffected by zoom) ─────────── */}
+      {/*─────────── Sidebar (fixed, unaffected by zoom) ─────────── */}
       <div className="w-16 h-full bg-green-200 flex flex-col justify-between py-6">
         <div className="flex flex-col items-center gap-6">
           <button onClick={handleUndo} title="Undo">
-            <img src="/icons/undo.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/undo.png`}
+              width={35}
+              height={35}
+            />
           </button>
           <button onClick={handleRedo} title="Redo">
-            <img src="/icons/redo.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/redo.png`}
+              width={35}
+              height={35}
+            />
           </button>
           <button
             onClick={() => {
@@ -499,7 +554,11 @@ export default function CollageEditor() {
             }}
             className={currentTool === "pencil" ? "bg-yellow-300" : ""}
           >
-            <img src="/icons/pen.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/pen.png`}
+              width={35}
+              height={35}
+            />
           </button>
           <button
             onClick={() => {
@@ -508,25 +567,45 @@ export default function CollageEditor() {
             }}
             className={currentTool === "eraser" ? "bg-yellow-300" : ""}
           >
-            <img src="/icons/eraser.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/eraser.png`}
+              width={35}
+              height={35}
+            />
           </button>
           <button
             onClick={() => setCurrentTool("tape")}
             className={currentTool === "tape" ? "bg-yellow-300" : ""}
           >
-            <img src="/icons/tape.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/tape.png`}
+              width={35}
+              height={35}
+            />
           </button>
           <button onClick={() => setCurrentTool("sticker")}>
-            <img src="/icons/sticker.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/sticker.png`}
+              width={35}
+              height={35}
+            />
           </button>
           <button onClick={() => setCurrentTool("text")}>
-            <img src="/icons/text.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/text.png`}
+              width={35}
+              height={35}
+            />
           </button>
 
-          {/* ✅ Image upload trigger */}
+          {/* Image upload trigger */}
           <label>
             <span role="button">
-              <img src="/icons/image.png" width={35} height={35} />
+              <img
+                src={`${import.meta.env.BASE_URL}icons/image.png`}
+                width={35}
+                height={35}
+              />
             </span>
             <input
               type="file"
@@ -537,15 +616,27 @@ export default function CollageEditor() {
           </label>
 
           <button>
-            <img src="/icons/add_collaborator.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/add_collaborator.png`}
+              width={35}
+              height={35}
+            />
           </button>
           <button>
-            <img src="/icons/save_draft.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/save_draft.png`}
+              width={35}
+              height={35}
+            />
           </button>
         </div>
         <div className="flex justify-center">
           <button>
-            <img src="/icons/post.png" width={35} height={35} />
+            <img
+              src={`${import.meta.env.BASE_URL}icons/post.png`}
+              width={35}
+              height={35}
+            />
           </button>
         </div>
       </div>
@@ -623,14 +714,14 @@ export default function CollageEditor() {
             {stickerImages.map((name) => (
               <img
                 key={name}
-                src={`/stickers/${name}.png`}
+                src={`${base}stickers/${name}.png`}
                 alt={name}
                 className="w-12 h-12 cursor-pointer object-contain"
                 draggable
                 onDragStart={(e) => {
                   e.dataTransfer.setData(
                     "sticker-src",
-                    `/stickers/${name}.png`
+                    `${base}stickers/${name}.png`
                   );
                   e.dataTransfer.effectAllowed = "copy";
                 }}
@@ -788,8 +879,6 @@ export default function CollageEditor() {
           }}
           style={{ width: "100%", height: "100%", position: "relative" }}
         >
-          {/* Zoomed canvas div and absolutely positioned elements go inside here */}
-
           {/* Canvas */}
           <canvas
             ref={canvasRef}
@@ -799,7 +888,6 @@ export default function CollageEditor() {
             onMouseUp={stopDrawing}
             onMouseLeave={stopDrawing}
           />
-
           {texts.map((text) => (
             <motion.div
               key={text.id}
@@ -824,8 +912,8 @@ export default function CollageEditor() {
                 cursor: text.locked ? "default" : "move",
               }}
               onClick={(e) => {
-                e.stopPropagation(); // ✅ prevents background from deselecting it
-                setSelectedElementId(text.id); // or text.id, img.id, sticker.id etc.
+                e.stopPropagation(); // prevents background from deselecting it
+                setSelectedElementId(text.id);
               }}
               onDragEnd={(event, info) => {
                 recordHistory();
@@ -875,7 +963,6 @@ export default function CollageEditor() {
               )}
             </motion.div>
           ))}
-
           {stickers.map((sticker) => (
             <motion.div
               key={sticker.id}
@@ -894,8 +981,8 @@ export default function CollageEditor() {
                 zIndex: 15,
               }}
               onClick={(e) => {
-                e.stopPropagation(); // ✅ prevents background from deselecting it
-                setSelectedElementId(sticker.id); // or text.id, img.id, sticker.id etc.
+                e.stopPropagation(); // prevents background from deselecting it
+                setSelectedElementId(sticker.id);
               }}
               onDragEnd={(event, info) => {
                 recordHistory();
@@ -1001,7 +1088,6 @@ export default function CollageEditor() {
               )}
             </motion.div>
           ))}
-
           {/* Images */}
           {imageElements.map((img) => (
             <motion.div
@@ -1020,8 +1106,8 @@ export default function CollageEditor() {
                 zIndex: 10,
               }}
               onClick={(e) => {
-                e.stopPropagation(); // ✅ prevents background from deselecting it
-                setSelectedElementId(img.id); // or text.id, img.id, sticker.id etc.
+                e.stopPropagation(); // prevents background from deselecting it
+                setSelectedElementId(img.id);
               }}
               onDragEnd={(event, info) => {
                 recordHistory();

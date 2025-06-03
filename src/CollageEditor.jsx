@@ -14,16 +14,28 @@ export default function CollageEditor() {
     };
   }
   function loadFromJson(data) {
-    setStrokes((prev) => []); // clear first to force React change detection
+    console.log("🧠 Loading project:", data);
+
+    // First, clear everything to force state update
+    setStrokes([]);
+    setTapes([]);
+    setImageElements([]);
+    setStickers([]);
+    setTextElements([]);
+
+    // Then apply loaded data on next frame
     setTimeout(() => {
-      setStrokes(data.strokes || []);
-      setTapes(data.tapes || []);
-      setImageElements(data.imageElements || []);
-      setStickers(data.stickers || []);
-      setTextElements(data.texts || []);
-      setCanvasSize((s) => ({ ...s })); // force redraw
+      if (data) {
+        setStrokes(data.strokes || []);
+        setTapes(data.tapes || []);
+        setImageElements(data.imageElements || []);
+        setStickers(data.stickers || []);
+        setTextElements(data.texts || []);
+        setCanvasSize((s) => ({ ...s })); // force re-render of canvas
+      }
     }, 0);
   }
+
   useEffect(() => {
     const receiveMessage = (event) => {
       if (event.data.type === "LOAD_PROJECT") {

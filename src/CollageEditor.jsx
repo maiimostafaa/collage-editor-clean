@@ -14,13 +14,15 @@ export default function CollageEditor() {
     };
   }
   function loadFromJson(data) {
-    if (!data) return;
-    if (data.strokes) setStrokes(data.strokes);
-    if (data.tapes) setTapes(data.tapes);
-    if (data.imageElements) setImageElements(data.imageElements);
-    if (data.stickers) setStickers(data.stickers);
-    if (data.texts) setTexts(data.texts);
-    setCanvasSize((s) => ({ ...s })); // Force re-render to trigger redraw
+    setStrokes((prev) => []); // clear first to force React change detection
+    setTimeout(() => {
+      setStrokes(data.strokes || []);
+      setTapes(data.tapes || []);
+      setImageElements(data.imageElements || []);
+      setStickers(data.stickers || []);
+      setTextElements(data.texts || []);
+      setCanvasSize((s) => ({ ...s })); // force redraw
+    }, 0);
   }
   useEffect(() => {
     const receiveMessage = (event) => {

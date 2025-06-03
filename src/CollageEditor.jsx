@@ -30,6 +30,7 @@ export default function CollageEditor() {
     };
 
     window.addEventListener("message", receiveMessage);
+    window.parent.postMessage({ type: "IFRAME_READY" }, "*");
 
     const interval = setInterval(() => {
       const data = getCurrentCanvasState();

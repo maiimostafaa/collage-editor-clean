@@ -3,73 +3,6 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 
 export default function CollageEditor() {
-  //for bubble integration
-  function getCurrentCanvasState() {
-    return {
-      strokes,
-      tapes,
-      imageElements,
-      stickers,
-      texts,
-    };
-  }
-  function loadFromJson(data) {
-    console.log("Loading project:", data);
-
-    // First, clear everything to force state update
-    setStrokes([]);
-    setTapes([]);
-    setImageElements([]);
-    setStickers([]);
-    setTextElements([]);
-
-    // Then apply loaded data on next frame
-    setTimeout(() => {
-      if (data) {
-        setStrokes(data.strokes || []);
-        setTapes(data.tapes || []);
-        setImageElements(data.imageElements || []);
-        setStickers(data.stickers || []);
-        setTextElements(data.texts || []);
-        setCanvasSize((s) => ({ ...s })); // force re-render of canvas
-      }
-    }, 0);
-  }
-
-  useEffect(() => {
-    const receiveMessage = (event) => {
-      if (event.data.type === "LOAD_PROJECT") {
-        console.log(" Received LOAD_PROJECT:", event.data.payload);
-        loadFromJson(event.data.payload);
-      }
-    };
-    window.addEventListener("message", receiveMessage);
-    window.parent.postMessage({ type: "IFRAME_READY" }, "*");
-
-    const interval = setInterval(() => {
-      const data = {
-        strokes,
-        tapes,
-        imageElements,
-        stickers,
-        texts,
-      };
-      console.log("📡 Posting SAVE_PROJECT", data);
-      window.parent.postMessage(
-        {
-          type: "SAVE_PROJECT",
-          payload: data,
-        },
-        "*"
-      );
-    }, 5000);
-
-    return () => {
-      window.removeEventListener("message", receiveMessage);
-      clearInterval(interval);
-    };
-  }, [strokes, tapes, imageElements, stickers, texts]);
-
   //for git paths
   const base = import.meta.env.BASE_URL;
 
@@ -203,6 +136,73 @@ export default function CollageEditor() {
       {children}
     </button>
   );
+
+  //for bubble integration
+  function getCurrentCanvasState() {
+    return {
+      strokes,
+      tapes,
+      imageElements,
+      stickers,
+      texts,
+    };
+  }
+  function loadFromJson(data) {
+    console.log("Loading project:", data);
+
+    // First, clear everything to force state update
+    setStrokes([]);
+    setTapes([]);
+    setImageElements([]);
+    setStickers([]);
+    setTextElements([]);
+
+    // Then apply loaded data on next frame
+    setTimeout(() => {
+      if (data) {
+        setStrokes(data.strokes || []);
+        setTapes(data.tapes || []);
+        setImageElements(data.imageElements || []);
+        setStickers(data.stickers || []);
+        setTextElements(data.texts || []);
+        setCanvasSize((s) => ({ ...s })); // force re-render of canvas
+      }
+    }, 0);
+  }
+
+  useEffect(() => {
+    const receiveMessage = (event) => {
+      if (event.data.type === "LOAD_PROJECT") {
+        console.log(" Received LOAD_PROJECT:", event.data.payload);
+        loadFromJson(event.data.payload);
+      }
+    };
+    window.addEventListener("message", receiveMessage);
+    window.parent.postMessage({ type: "IFRAME_READY" }, "*");
+
+    const interval = setInterval(() => {
+      const data = {
+        strokes,
+        tapes,
+        imageElements,
+        stickers,
+        texts,
+      };
+      console.log("📡 Posting SAVE_PROJECT", data);
+      window.parent.postMessage(
+        {
+          type: "SAVE_PROJECT",
+          payload: data,
+        },
+        "*"
+      );
+    }, 5000);
+
+    return () => {
+      window.removeEventListener("message", receiveMessage);
+      clearInterval(interval);
+    };
+  }, [strokes, tapes, imageElements, stickers, texts]);
 
   const clampToBounds = (x, y, width, height, canvasWidth, canvasHeight) => {
     const clampedX = Math.max(0, Math.min(x, canvasWidth - width));

@@ -20,6 +20,7 @@ export default function CollageEditor() {
     if (data.imageElements) setImageElements(data.imageElements);
     if (data.stickers) setStickers(data.stickers);
     if (data.texts) setTexts(data.texts);
+    setCanvasSize((s) => ({ ...s })); // Force re-render to trigger redraw
   }
   useEffect(() => {
     const receiveMessage = (event) => {

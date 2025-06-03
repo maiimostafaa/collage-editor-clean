@@ -21,6 +21,32 @@ export default function CollageEditor() {
     if (data.stickers) setStickers(data.stickers);
     if (data.texts) setTexts(data.texts);
   }
+  useEffect(() => {
+    const receiveMessage = (event) => {
+      if (event.data.type === "LOAD_PROJECT") {
+        console.log(" Received LOAD_PROJECT:", event.data.payload);
+        loadFromJson(event.data.payload);
+      }
+    };
+
+    window.addEventListener("message", receiveMessage);
+
+    const interval = setInterval(() => {
+      const data = getCurrentCanvasState();
+      window.parent.postMessage(
+        {
+          type: "SAVE_PROJECT",
+          payload: data,
+        },
+        "*"
+      );
+    }, 5000);
+
+    return () => {
+      window.removeEventListener("message", receiveMessage);
+      clearInterval(interval);
+    };
+  }, []);
 
   //for git paths
   const base = import.meta.env.BASE_URL;
@@ -497,32 +523,6 @@ export default function CollageEditor() {
       ctx.restore();
     });
   }, [strokes, tapes, canvasSize]); //  triggers redraw on resize
-
-  useEffect(() => {
-    const receiveMessage = (event) => {
-      if (event.data.type === "LOAD_PROJECT") {
-        loadFromJson(event.data.payload);
-      }
-    };
-
-    window.addEventListener("message", receiveMessage);
-
-    const interval = setInterval(() => {
-      const data = getCurrentCanvasState();
-      window.parent.postMessage(
-        {
-          type: "SAVE_PROJECT",
-          payload: data,
-        },
-        "*"
-      );
-    }, 5000); // every 5 seconds
-
-    return () => {
-      window.removeEventListener("message", receiveMessage);
-      clearInterval(interval);
-    };
-  }, []);
 
   return (
     <div className="w-screen h-screen flex overflow-hidden">

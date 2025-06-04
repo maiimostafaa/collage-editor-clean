@@ -689,6 +689,24 @@ export default function CollageEditor() {
             />
           </button>
           <button>
+            onClick=
+            {() => {
+              const data = {
+                strokes,
+                tapes,
+                imageElements,
+                stickers,
+                texts,
+              };
+              console.log("🧪 Forcing SAVE_PROJECT:", data);
+              window.parent.postMessage(
+                {
+                  type: "SAVE_PROJECT",
+                  payload: data,
+                },
+                "*"
+              );
+            }}
             <img
               src={`${import.meta.env.BASE_URL}icons/save_draft.png`}
               width={35}

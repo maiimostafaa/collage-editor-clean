@@ -220,8 +220,7 @@ export default function CollageEditor() {
     const interval = setInterval(() => {
       const data = latestDataRef.current;
 
-      // Optional: show what's being saved
-      console.log("💾 Autosaving:", data);
+      console.log("💾 Trying to save:", JSON.stringify(data));
 
       fetch(
         `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
@@ -231,12 +230,14 @@ export default function CollageEditor() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
           },
-          body: JSON.stringify({ canvasData: data }),
+          body: JSON.stringify({
+            canvasData: data,
+          }),
         }
       )
         .then((res) => res.json())
-        .then((res) => console.log("✅ Autosaved to Bubble:", res))
-        .catch((err) => console.error("❌ Autosave failed:", err));
+        .then((res) => console.log("✅ Saved to Bubble:", res))
+        .catch((err) => console.error("❌ Save failed:", err));
     }, 5000);
 
     return () => clearInterval(interval);
@@ -767,21 +768,7 @@ export default function CollageEditor() {
           <button>
             onClick=
             {() => {
-              const data = {
-                strokes,
-                tapes,
-                imageElements,
-                stickers,
-                texts,
-              };
-              console.log("🧪 Forcing SAVE_PROJECT:", data);
-              window.parent.postMessage(
-                {
-                  type: "SAVE_PROJECT",
-                  payload: data,
-                },
-                "*"
-              );
+              console.log("🧪 Manually saving:", latestDataRef.current);
             }}
             <img
               src={`${import.meta.env.BASE_URL}icons/save_draft.png`}

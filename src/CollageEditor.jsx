@@ -225,16 +225,19 @@ export default function CollageEditor() {
       texts,
     };
 
-    console.log("🚀 Sending data to Bubble:");
-    console.log("Collage ID:", collageId);
-    console.log("Data to save:", dataToSave);
-
-    const payload = {
+    // Try both approaches - you can test which one works
+    const payload1 = {
       collage_id: collageId,
-      canvas_data: dataToSave, // Try as object first
+      canvas_data: JSON.stringify(dataToSave), // Stringified version
     };
 
-    console.log("📦 Full payload:", payload);
+    const payload2 = {
+      collage_id: collageId,
+      canvas_data: dataToSave, // Object version
+    };
+
+    console.log("🧪 Testing stringified version first:");
+    console.log("Payload:", payload1);
 
     fetch(
       "https://mostafam-97509.bubbleapps.io/version-test/api/1.1/wf/update_canvas_data",
@@ -243,33 +246,46 @@ export default function CollageEditor() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload1), // Try stringified first
       }
     )
       .then((res) => {
         console.log("📡 Response status:", res.status);
-        console.log("📡 Response headers:", res.headers);
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
-        return res.text(); // Use text() first to see raw response
+        return res.text();
       })
       .then((text) => {
-        console.log("📄 Raw response:", text);
-        try {
-          const json = JSON.parse(text);
-          console.log("✅ Parsed response:", json);
-        } catch (e) {
-          console.log("⚠️ Response is not JSON:", text);
-        }
+        console.log("✅ Success with stringified data:", text);
       })
       .catch((err) => {
-        console.error("❌ Failed to save:", err);
+        console.error("❌ Stringified version failed:", err);
+        console.log("🧪 Trying object version...");
+
+        // If stringified fails, try object version
+        return fetch(
+          "https://mostafam-97509.bubbleapps.io/version-test/api/1.1/wf/update_canvas_data",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload2),
+          }
+        )
+          .then((res) => {
+            console.log("📡 Response status (object):", res.status);
+            if (!res.ok) {
+              throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.text();
+          })
+          .then((text) => {
+            console.log("✅ Success with object data:", text);
+          });
       });
   }, [strokes, tapes, imageElements, stickers, texts]);
-
-  // Also update the collageId declaration at the top of your component:
-  const collageId = getCollageId();
 
   useEffect(() => {
     console.log("strokes:", strokes);

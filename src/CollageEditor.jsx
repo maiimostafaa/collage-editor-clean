@@ -196,7 +196,7 @@ export default function CollageEditor() {
     window.parent.postMessage(
       {
         type: "SAVE_PROJECT",
-        payload: data,
+        payload: JSON.stringify(getCurrentCanvasState()),
       },
       "*"
     );

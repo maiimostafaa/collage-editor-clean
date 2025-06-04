@@ -211,41 +211,32 @@ export default function CollageEditor() {
   }, [strokes, tapes, imageElements, stickers, texts]);
 
   useEffect(() => {
+    const collageId = new URLSearchParams(window.location.search).get(
+      "collage"
+    );
+    const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
+    const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
+
     const interval = setInterval(() => {
       const data = latestDataRef.current;
 
-      if (
-        data.strokes.length ||
-        data.tapes.length ||
-        data.imageElements.length ||
-        data.stickers.length ||
-        data.texts.length
-      ) {
-        const collageId = new URLSearchParams(window.location.search).get(
-          "collage"
-        );
-        const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
-        const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
+      // Optional: show what's being saved
+      console.log("💾 Autosaving:", data);
 
-        fetch(
-          `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
-            },
-            body: JSON.stringify({
-              canvasData: data,
-            }),
-          }
-        )
-          .then((res) => res.json())
-          .then((res) => console.log("✅ Saved to Bubble API:", res))
-          .catch((err) => console.error("❌ Save failed:", err));
-      } else {
-        console.log("⚠️ Skipping save, empty data");
-      }
+      fetch(
+        `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
+          },
+          body: JSON.stringify({ canvasData: data }),
+        }
+      )
+        .then((res) => res.json())
+        .then((res) => console.log("✅ Autosaved to Bubble:", res))
+        .catch((err) => console.error("❌ Autosave failed:", err));
     }, 5000);
 
     return () => clearInterval(interval);
@@ -467,6 +458,37 @@ export default function CollageEditor() {
     }
 
     setIsDrawing(false);
+
+    latestDataRef.current = {
+      strokes,
+      tapes,
+      imageElements,
+      stickers,
+      texts,
+    };
+
+    const collageId = new URLSearchParams(window.location.search).get(
+      "collage"
+    );
+    const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
+    const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
+
+    fetch(
+      `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
+        },
+        body: JSON.stringify({
+          canvasData: latestDataRef.current,
+        }),
+      }
+    )
+      .then((res) => res.json())
+      .then((res) => console.log("✅ Saved to Bubble after stopDrawing:", res))
+      .catch((err) => console.error("❌ Save on stopDrawing failed:", err));
   };
 
   const drawGrid = (ctx, width, height, spacing = 40) => {

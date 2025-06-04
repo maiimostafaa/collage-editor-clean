@@ -158,35 +158,24 @@ export default function CollageEditor() {
       return;
     }
 
-    const isEmpty =
-      (!data.strokes || data.strokes.length === 0) &&
-      (!data.tapes || data.tapes.length === 0) &&
-      (!data.imageElements || data.imageElements.length === 0) &&
-      (!data.stickers || data.stickers.length === 0) &&
-      (!data.texts || data.texts.length === 0);
+    console.log("📥 Loading data into state...");
 
-    if (isEmpty) {
-      console.warn("⚠️ Skipping loadFromJson — all fields are empty.");
-      return;
-    }
-
-    // First, clear everything to force state update
+    // Clear everything first
     setStrokes([]);
     setTapes([]);
     setImageElements([]);
     setStickers([]);
     setTexts([]);
 
-    // Then apply loaded data on next frame
+    // Then apply loaded data on next frame (even if empty arrays)
     setTimeout(() => {
-      if (data) {
-        setStrokes(data.strokes || []);
-        setTapes(data.tapes || []);
-        setImageElements(data.imageElements || []);
-        setStickers(data.stickers || []);
-        setTexts(data.texts || []);
-        setCanvasSize((s) => ({ ...s })); // force re-render of canvas
-      }
+      setStrokes(data.strokes || []);
+      setTapes(data.tapes || []);
+      setImageElements(data.imageElements || []);
+      setStickers(data.stickers || []);
+      setTexts(data.texts || []);
+      setCanvasSize((s) => ({ ...s })); // force re-render of canvas
+      console.log("✅ Data loaded successfully");
     }, 0);
   }
 
@@ -235,6 +224,24 @@ export default function CollageEditor() {
     }, 5000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Add this useEffect to listen for messages from Bubble
+  useEffect(() => {
+    const handleMessage = (event) => {
+      console.log("📨 Received message:", event.data);
+
+      if (event.data && event.data.type === "LOAD_PROJECT") {
+        console.log("📂 Loading project from Bubble:", event.data.payload);
+        loadFromJson(event.data.payload);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
   }, []);
 
   const clampToBounds = (x, y, width, height, canvasWidth, canvasHeight) => {

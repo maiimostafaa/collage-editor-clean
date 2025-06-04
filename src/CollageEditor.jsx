@@ -16,7 +16,9 @@ export default function CollageEditor() {
   }, []);
 
   //collage unique id
-  const collageId = new URLSearchParams(window.location.search).get("collage");
+  const collageId =
+    new URLSearchParams(window.location.search).get("collage") ||
+    window.location.pathname.split("/").pop();
 
   //for git paths
   const base = import.meta.env.BASE_URL;
@@ -192,9 +194,10 @@ export default function CollageEditor() {
   }
 
   const saveToAPI = () => {
-    const collageId = new URLSearchParams(window.location.search).get(
-      "collage"
-    );
+    const collageId =
+      new URLSearchParams(window.location.search).get("collage") ||
+      window.location.pathname.split("/").pop();
+
     const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
 
     const dataToSave = {

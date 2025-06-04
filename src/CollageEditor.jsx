@@ -16,9 +16,25 @@ export default function CollageEditor() {
   }, []);
 
   //collage unique id
-  const collageId =
-    new URLSearchParams(window.location.search).get("collage") ||
-    window.location.pathname.split("/").pop();
+  const getCollageId = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const collageFromQuery = urlParams.get("collage");
+    const pathParts = window.location.pathname.split("/");
+    const collageFromPath = pathParts[pathParts.length - 1];
+
+    console.log("🔍 URL Debug Info:");
+    console.log("Full URL:", window.location.href);
+    console.log("Pathname:", window.location.pathname);
+    console.log("Search params:", window.location.search);
+    console.log("Path parts:", pathParts);
+    console.log("Collage from query:", collageFromQuery);
+    console.log("Collage from path:", collageFromPath);
+
+    const collageId = collageFromQuery || collageFromPath;
+    console.log("🎯 Final collage ID:", collageId);
+
+    return collageId;
+  };
 
   //for git paths
   const base = import.meta.env.BASE_URL;
@@ -193,13 +209,11 @@ export default function CollageEditor() {
     console.log("✅ Data loaded safely");
   }
 
-  const saveToAPI = () => {
-    const collageId =
-      new URLSearchParams(window.location.search).get("collage") ||
-      window.location.pathname.split("/").pop();
+  const saveToAPI = useCallback(() => {
+    const collageId = getCollageId();
 
-    if (!collageId) {
-      console.error("❌ collageId is missing");
+    if (!collageId || collageId === "collage-editor-api-version") {
+      console.error("❌ Invalid collageId:", collageId);
       return;
     }
 
@@ -211,6 +225,17 @@ export default function CollageEditor() {
       texts,
     };
 
+    console.log("🚀 Sending data to Bubble:");
+    console.log("Collage ID:", collageId);
+    console.log("Data to save:", dataToSave);
+
+    const payload = {
+      collage_id: collageId,
+      canvas_data: dataToSave, // Try as object first
+    };
+
+    console.log("📦 Full payload:", payload);
+
     fetch(
       "https://mostafam-97509.bubbleapps.io/version-test/api/1.1/wf/update_canvas_data",
       {
@@ -218,16 +243,33 @@ export default function CollageEditor() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          collage_id: collageId,
-          canvas_data: JSON.stringify(dataToSave), // important: stringify here!
-        }),
+        body: JSON.stringify(payload),
       }
     )
-      .then((res) => res.json())
-      .then((res) => console.log("✅ Saved to Bubble:", res))
-      .catch((err) => console.error("❌ Failed to save:", err));
-  };
+      .then((res) => {
+        console.log("📡 Response status:", res.status);
+        console.log("📡 Response headers:", res.headers);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.text(); // Use text() first to see raw response
+      })
+      .then((text) => {
+        console.log("📄 Raw response:", text);
+        try {
+          const json = JSON.parse(text);
+          console.log("✅ Parsed response:", json);
+        } catch (e) {
+          console.log("⚠️ Response is not JSON:", text);
+        }
+      })
+      .catch((err) => {
+        console.error("❌ Failed to save:", err);
+      });
+  }, [strokes, tapes, imageElements, stickers, texts]);
+
+  // Also update the collageId declaration at the top of your component:
+  const collageId = getCollageId();
 
   useEffect(() => {
     console.log("strokes:", strokes);

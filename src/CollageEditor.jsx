@@ -458,6 +458,10 @@ export default function CollageEditor() {
       return;
     }
 
+    if (currentTool === "pencil" && currentStroke.points.length > 0) {
+      setStrokes((prev) => [...prev, currentStroke]);
+    }
+
     setIsDrawing(false);
 
     latestDataRef.current = {

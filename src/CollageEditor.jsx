@@ -217,27 +217,14 @@ export default function CollageEditor() {
       return;
     }
 
-    const dataToSave = {
-      strokes,
-      tapes,
-      imageElements,
-      stickers,
-      texts,
-    };
+    const dataToSave = getCurrentCanvasState(); // ✅ pull the freshest version here
 
-    // Try both approaches - you can test which one works
     const payload1 = {
       collage_id: collageId,
-      canvas_data: JSON.stringify(dataToSave), // Stringified version
+      canvas_data: JSON.stringify(dataToSave),
     };
 
-    const payload2 = {
-      collage_id: collageId,
-      canvas_data: dataToSave, // Object version
-    };
-
-    console.log("🧪 Testing stringified version first:");
-    console.log("Payload:", payload1);
+    console.log("🧪 Sending payload:", payload1);
 
     fetch(
       "https://mostafam-97509.bubbleapps.io/version-test/api/1.1/wf/update_canvas_data",
@@ -246,7 +233,7 @@ export default function CollageEditor() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload1), // Try stringified first
+        body: JSON.stringify(payload1),
       }
     )
       .then((res) => {
@@ -260,32 +247,9 @@ export default function CollageEditor() {
         console.log("✅ Success with stringified data:", text);
       })
       .catch((err) => {
-        console.error("❌ Stringified version failed:", err);
-        console.log("🧪 Trying object version...");
-
-        // If stringified fails, try object version
-        return fetch(
-          "https://mostafam-97509.bubbleapps.io/version-test/api/1.1/wf/update_canvas_data",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload2),
-          }
-        )
-          .then((res) => {
-            console.log("📡 Response status (object):", res.status);
-            if (!res.ok) {
-              throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            return res.text();
-          })
-          .then((text) => {
-            console.log("✅ Success with object data:", text);
-          });
+        console.error("❌ Save failed:", err);
       });
-  }, [strokes, tapes, imageElements, stickers, texts]);
+  }, [getCurrentCanvasState]);
 
   useEffect(() => {
     console.log("strokes:", strokes);

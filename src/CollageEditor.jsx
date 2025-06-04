@@ -221,7 +221,7 @@ export default function CollageEditor() {
 
     const payload1 = {
       collage_id: collageId,
-      canvas_data: JSON.stringify(dataToSave),
+      canvas_data: dataToSave,
     };
 
     console.log("🧪 Sending payload:", payload1);

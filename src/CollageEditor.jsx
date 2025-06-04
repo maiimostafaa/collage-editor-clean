@@ -252,6 +252,43 @@ export default function CollageEditor() {
   }, []);
 
   useEffect(() => {
+    const collageId = new URLSearchParams(window.location.search).get(
+      "collage"
+    );
+    if (!collageId) {
+      console.warn("❌ No collageId found in URL");
+      return;
+    }
+
+    const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
+    const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
+
+    fetch(
+      `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        const savedData = res.response?.canvasData;
+        console.log("📥 Loaded initial canvasData from Bubble:", savedData);
+        if (savedData) {
+          loadFromJson(savedData);
+        } else {
+          console.log("⚠️ No canvasData found for this collage.");
+        }
+      })
+      .catch((err) =>
+        console.error("❌ Error loading canvasData from Bubble:", err)
+      );
+  }, []);
+
+  useEffect(() => {
     const handleMessage = (event) => {
       console.log("📨 Received message:", event.data);
 

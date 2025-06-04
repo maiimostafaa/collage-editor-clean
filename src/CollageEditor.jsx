@@ -352,6 +352,16 @@ export default function CollageEditor() {
       },
     ]);
     setFuture([]); // clear redo stack
+    latestDataRef.current = {
+      strokes,
+      tapes,
+      imageElements,
+      stickers,
+      texts,
+    };
+
+    // 💾 Save to Bubble
+    saveToAPI();
   };
 
   const handleUndo = () => {
@@ -375,6 +385,7 @@ export default function CollageEditor() {
     setImageElements(previousState.imageElements);
     setStickers(previousState.stickers);
     setTexts(previousState.texts);
+    saveToAPI();
   };
 
   const handleRedo = () => {
@@ -398,6 +409,7 @@ export default function CollageEditor() {
     setImageElements(nextState.imageElements);
     setStickers(nextState.stickers);
     setTexts(nextState.texts);
+    saveToAPI();
   };
 
   const startDrawing = (e) => {
@@ -502,7 +514,7 @@ export default function CollageEditor() {
         stickers,
         texts,
       };
-      saveToAPI(updatedData);
+      saveToAPI();
       return;
     }
 

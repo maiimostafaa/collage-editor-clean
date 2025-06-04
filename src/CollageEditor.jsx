@@ -168,26 +168,26 @@ export default function CollageEditor() {
 
     if (!data || typeof data !== "object") {
       console.warn("⚠️ loadFromJson called with invalid data:", data);
-      // Initialize with empty state
-      data = {
-        strokes: [],
-        tapes: [],
-        imageElements: [],
-        stickers: [],
-        texts: [],
-      };
+      return;
     }
 
-    console.log("📥 Loading data into state...");
+    const safe = (arr) => (Array.isArray(arr) ? arr : []);
 
-    // Apply data immediately (React will batch these updates)
-    setStrokes(data.strokes || []);
-    setTapes(data.tapes || []);
-    setImageElements(data.imageElements || []);
-    setStickers(data.stickers || []);
-    setTexts(data.texts || []);
+    const sanitizeStrokes = safe(data.strokes).filter(
+      (s) =>
+        s &&
+        Array.isArray(s.points) && // key line: prevents your crash
+        typeof s.color === "string" &&
+        typeof s.width === "number"
+    );
 
-    console.log("✅ Data loaded successfully");
+    setStrokes(sanitizeStrokes);
+    setTapes(safe(data.tapes));
+    setImageElements(safe(data.imageElements));
+    setStickers(safe(data.stickers));
+    setTexts(safe(data.texts));
+
+    console.log("✅ Data loaded safely");
   }
 
   useEffect(() => {

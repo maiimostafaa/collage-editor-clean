@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
+import { useCallback } from "react";
 import { motion } from "framer-motion";
 
 export default function CollageEditor() {
@@ -190,6 +191,43 @@ export default function CollageEditor() {
     console.log("✅ Data loaded safely");
   }
 
+  const saveToAPI = useCallback(
+    async (data) => {
+      if (!collageId) {
+        console.warn("❌ No collageId found, cannot save");
+        return;
+      }
+
+      const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
+      const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
+
+      try {
+        console.log("💾 Saving to API:", data);
+        const response = await fetch(
+          `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
+            },
+            body: JSON.stringify({
+              canvasData: data,
+            }),
+          }
+        );
+
+        const result = await response.json();
+        console.log("✅ Save successful:", result);
+        return result;
+      } catch (error) {
+        console.error("❌ Save failed:", error);
+        throw error;
+      }
+    },
+    [collageId]
+  );
+
   useEffect(() => {
     console.log("strokes:", strokes);
     console.log("tapes:", tapes);
@@ -201,84 +239,27 @@ export default function CollageEditor() {
   const latestDataRef = useRef({});
 
   useEffect(() => {
-    latestDataRef.current = {
+    const currentData = {
       strokes,
       tapes,
       imageElements,
       stickers,
       texts,
     };
+    latestDataRef.current = currentData;
+    console.log("📊 Data updated in ref:", currentData);
   }, [strokes, tapes, imageElements, stickers, texts]);
 
   useEffect(() => {
-    const collageId = new URLSearchParams(window.location.search).get(
-      "collage"
-    );
-    const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
-    const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
-
     const interval = setInterval(() => {
-      const data = latestDataRef.current;
-
-      console.log("💾 Trying to save:", JSON.stringify(data));
-
-      fetch(
-        `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
-          },
-          body: JSON.stringify({
-            canvasData: data,
-          }),
-        }
-      )
-        .then((res) => res.json())
-        .then((res) => console.log("✅ Saved to Bubble:", res))
-        .catch((err) => console.error("❌ Save failed:", err));
+      const currentData = latestDataRef.current;
+      if (currentData && Object.keys(currentData).length > 0) {
+        saveToAPI(currentData);
+      }
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const collageId = new URLSearchParams(window.location.search).get(
-      "collage"
-    );
-    if (!collageId) {
-      console.warn("❌ No collageId found in URL");
-      return;
-    }
-
-    const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
-    const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
-
-    fetch(
-      `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        const savedData = res.response?.canvasData;
-        console.log("📥 Loaded initial canvasData from Bubble:", savedData);
-        if (savedData) {
-          loadFromJson(savedData);
-        } else {
-          console.log("⚠️ No canvasData found for this collage.");
-        }
-      })
-      .catch((err) =>
-        console.error("❌ Error loading canvasData from Bubble:", err)
-      );
-  }, []);
+  }, [saveToAPI]);
 
   useEffect(() => {
     const handleMessage = (event) => {
@@ -454,23 +435,26 @@ export default function CollageEditor() {
       };
 
       setTapes((prev) => [...prev, newTape]);
-      latestDataRef.current = {
-        ...latestDataRef.current,
-        tapes: [...tapes, newTape],
-      };
-
       setTapeStart(null);
+      const updatedData = {
+        strokes,
+        tapes: [...tapes, newTape],
+        imageElements,
+        stickers,
+        texts,
+      };
+      saveToAPI(updatedData);
       return;
     }
 
-    if (currentTool === "pencil" && currentStroke.points.length > 0) {
-      const newStrokes = [...strokes, currentStroke];
-      setStrokes(newStrokes);
-      latestDataRef.current = {
-        ...latestDataRef.current,
-        strokes: newStrokes,
-      };
-    }
+    // if (currentTool === "pencil" && currentStroke.points.length > 0) {
+    //   const newStrokes = [...strokes, currentStroke];
+    //   setStrokes(newStrokes);
+    //   latestDataRef.current = {
+    //     ...latestDataRef.current,
+    //     strokes: newStrokes,
+    //   };
+    // }
 
     setIsDrawing(false);
 
@@ -481,29 +465,6 @@ export default function CollageEditor() {
       stickers,
       texts,
     };
-
-    const collageId = new URLSearchParams(window.location.search).get(
-      "collage"
-    );
-    const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
-    const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
-
-    fetch(
-      `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
-        },
-        body: JSON.stringify({
-          canvasData: latestDataRef.current,
-        }),
-      }
-    )
-      .then((res) => res.json())
-      .then((res) => console.log("✅ Saved to Bubble after stopDrawing:", res))
-      .catch((err) => console.error("❌ Save on stopDrawing failed:", err));
   };
 
   const drawGrid = (ctx, width, height, spacing = 40) => {
@@ -779,11 +740,12 @@ export default function CollageEditor() {
               height={35}
             />
           </button>
-          <button>
-            onClick=
-            {() => {
+          <button
+            onClick={() => {
               console.log("🧪 Manually saving:", latestDataRef.current);
+              saveToAPI(latestDataRef.current);
             }}
+          >
             <img
               src={`${import.meta.env.BASE_URL}icons/save_draft.png`}
               width={35}

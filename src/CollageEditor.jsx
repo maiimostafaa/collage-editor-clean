@@ -222,7 +222,7 @@ export default function CollageEditor() {
           Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
         },
         body: JSON.stringify({
-          canvasData: JSON.stringify({ test: "hello world" }),
+          canvasData: dataToSave,
         }),
       }
     )

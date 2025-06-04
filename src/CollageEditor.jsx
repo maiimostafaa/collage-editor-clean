@@ -4,6 +4,16 @@ import { motion } from "framer-motion";
 
 export default function CollageEditor() {
   console.log("CollageEditor loaded!");
+  useEffect(() => {
+    const signalReady = () => {
+      console.log("🟢 Iframe ready, requesting initial data");
+      window.parent.postMessage({ type: "IFRAME_READY" }, "*");
+    };
+
+    const timer = setTimeout(signalReady, 500); // or use 1000ms if needed
+    return () => clearTimeout(timer);
+  }, []);
+
   //for git paths
   const base = import.meta.env.BASE_URL;
 
@@ -155,28 +165,26 @@ export default function CollageEditor() {
 
     if (!data || typeof data !== "object") {
       console.warn("⚠️ loadFromJson called with invalid data:", data);
-      return;
+      // Initialize with empty state
+      data = {
+        strokes: [],
+        tapes: [],
+        imageElements: [],
+        stickers: [],
+        texts: [],
+      };
     }
 
     console.log("📥 Loading data into state...");
 
-    // Clear everything first
-    setStrokes([]);
-    setTapes([]);
-    setImageElements([]);
-    setStickers([]);
-    setTexts([]);
+    // Apply data immediately (React will batch these updates)
+    setStrokes(data.strokes || []);
+    setTapes(data.tapes || []);
+    setImageElements(data.imageElements || []);
+    setStickers(data.stickers || []);
+    setTexts(data.texts || []);
 
-    // Then apply loaded data on next frame (even if empty arrays)
-    setTimeout(() => {
-      setStrokes(data.strokes || []);
-      setTapes(data.tapes || []);
-      setImageElements(data.imageElements || []);
-      setStickers(data.stickers || []);
-      setTexts(data.texts || []);
-      setCanvasSize((s) => ({ ...s })); // force re-render of canvas
-      console.log("✅ Data loaded successfully");
-    }, 0);
+    console.log("✅ Data loaded successfully");
   }
 
   useEffect(() => {
@@ -226,22 +234,18 @@ export default function CollageEditor() {
     return () => clearInterval(interval);
   }, []);
 
-  // Add this useEffect to listen for messages from Bubble
   useEffect(() => {
     const handleMessage = (event) => {
       console.log("📨 Received message:", event.data);
 
-      if (event.data && event.data.type === "LOAD_PROJECT") {
+      if (event.data?.type === "LOAD_PROJECT") {
         console.log("📂 Loading project from Bubble:", event.data.payload);
         loadFromJson(event.data.payload);
       }
     };
 
     window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
+    return () => window.removeEventListener("message", handleMessage);
   }, []);
 
   const clampToBounds = (x, y, width, height, canvasWidth, canvasHeight) => {

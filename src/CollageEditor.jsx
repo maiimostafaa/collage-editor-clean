@@ -191,6 +191,8 @@ export default function CollageEditor() {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      console.log("🕓 Sync loop running every 5s");
+
       const data = {
         strokes: [...strokes],
         tapes: [...tapes],
@@ -204,7 +206,7 @@ export default function CollageEditor() {
       window.parent.postMessage(
         {
           type: "SAVE_PROJECT",
-          payload: JSON.stringify(data), // 🔥 critical: stringify here!
+          payload: data,
         },
         "*"
       );

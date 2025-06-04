@@ -195,13 +195,7 @@ export default function CollageEditor() {
     const collageId = new URLSearchParams(window.location.search).get(
       "collage"
     );
-    const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
     const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
-
-    if (!collageId) {
-      console.warn("⚠️ No collage ID found in URL.");
-      return;
-    }
 
     const dataToSave = {
       strokes,
@@ -211,25 +205,20 @@ export default function CollageEditor() {
       texts,
     };
 
-    console.log("✅ Saving to Bubble with canvasData:", dataToSave);
-
-    fetch(
-      `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
-        },
-        body: JSON.stringify({
-          canvasData: dataToSave,
-        }),
-      }
-    )
+    fetch(`https://${APP_DOMAIN}/version-test/api/1.1/wf/update_canvas_data`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        collage_id: collageId,
+        canvas_data: JSON.stringify(dataToSave),
+      }),
+    })
       .then((res) => res.json())
-      .then((res) => console.log("✅ Bubble API response:", res))
+      .then((res) => console.log("✅ Saved via backend workflow:", res))
       .catch((err) =>
-        console.error("❌ Error saving to Bubble in saveToAPI:", err)
+        console.error("❌ Failed to save via backend workflow:", err)
       );
   };
 

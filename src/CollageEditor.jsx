@@ -174,7 +174,7 @@ export default function CollageEditor() {
     setTapes([]);
     setImageElements([]);
     setStickers([]);
-    setTextElements([]);
+    setTexts([]);
 
     // Then apply loaded data on next frame
     setTimeout(() => {
@@ -183,11 +183,19 @@ export default function CollageEditor() {
         setTapes(data.tapes || []);
         setImageElements(data.imageElements || []);
         setStickers(data.stickers || []);
-        setTextElements(data.texts || []);
+        setTexts(data.texts || []);
         setCanvasSize((s) => ({ ...s })); // force re-render of canvas
       }
     }, 0);
   }
+
+  useEffect(() => {
+    console.log("strokes:", strokes);
+    console.log("tapes:", tapes);
+    console.log("imageElements:", imageElements);
+    console.log("stickers:", stickers);
+    console.log("texts:", texts);
+  }, [strokes, tapes, imageElements, stickers, texts]);
 
   const latestDataRef = useRef({});
 

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 
 export default function CollageEditor() {
+  console.log("CollageEditor loaded!");
   //for git paths
   const base = import.meta.env.BASE_URL;
 

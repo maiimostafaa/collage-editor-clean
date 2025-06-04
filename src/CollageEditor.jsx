@@ -454,12 +454,22 @@ export default function CollageEditor() {
       };
 
       setTapes((prev) => [...prev, newTape]);
+      latestDataRef.current = {
+        ...latestDataRef.current,
+        tapes: [...tapes, newTape],
+      };
+
       setTapeStart(null);
       return;
     }
 
     if (currentTool === "pencil" && currentStroke.points.length > 0) {
-      setStrokes((prev) => [...prev, currentStroke]);
+      const newStrokes = [...strokes, currentStroke];
+      setStrokes(newStrokes);
+      latestDataRef.current = {
+        ...latestDataRef.current,
+        strokes: newStrokes,
+      };
     }
 
     setIsDrawing(false);

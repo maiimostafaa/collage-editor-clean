@@ -191,42 +191,47 @@ export default function CollageEditor() {
     console.log("✅ Data loaded safely");
   }
 
-  const saveToAPI = useCallback(
-    async (data) => {
-      if (!collageId) {
-        console.warn("❌ No collageId found, cannot save");
-        return;
+  const saveToAPI = () => {
+    const collageId = new URLSearchParams(window.location.search).get(
+      "collage"
+    );
+    const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
+    const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
+
+    if (!collageId) {
+      console.warn("⚠️ No collage ID found in URL.");
+      return;
+    }
+
+    const dataToSave = {
+      strokes,
+      tapes,
+      imageElements,
+      stickers,
+      texts,
+    };
+
+    console.log("✅ Saving to Bubble with canvasData:", dataToSave);
+
+    fetch(
+      `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
+        },
+        body: JSON.stringify({
+          canvasData: dataToSave,
+        }),
       }
-
-      const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
-      const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
-
-      try {
-        console.log("💾 Saving to API:", data);
-        const response = await fetch(
-          `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
-            },
-            body: JSON.stringify({
-              canvasData: data,
-            }),
-          }
-        );
-
-        const result = await response.json();
-        console.log("✅ Save successful:", result);
-        return result;
-      } catch (error) {
-        console.error("❌ Save failed:", error);
-        throw error;
-      }
-    },
-    [collageId]
-  );
+    )
+      .then((res) => res.json())
+      .then((res) => console.log("✅ Bubble API response:", res))
+      .catch((err) =>
+        console.error("❌ Error saving to Bubble in saveToAPI:", err)
+      );
+  };
 
   useEffect(() => {
     console.log("strokes:", strokes);
@@ -254,7 +259,7 @@ export default function CollageEditor() {
     const interval = setInterval(() => {
       const currentData = latestDataRef.current;
       if (currentData && Object.keys(currentData).length > 0) {
-        saveToAPI(currentData);
+        saveToAPI();
       }
     }, 5000);
 

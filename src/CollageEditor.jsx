@@ -198,7 +198,10 @@ export default function CollageEditor() {
       new URLSearchParams(window.location.search).get("collage") ||
       window.location.pathname.split("/").pop();
 
-    const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
+    if (!collageId) {
+      console.error("❌ collageId is missing");
+      return;
+    }
 
     const dataToSave = {
       strokes,
@@ -208,21 +211,22 @@ export default function CollageEditor() {
       texts,
     };
 
-    fetch(`https://${APP_DOMAIN}/version-test/api/1.1/wf/update_canvas_data`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        collage_id: collageId,
-        canvas_data: JSON.stringify(dataToSave),
-      }),
-    })
+    fetch(
+      "https://mostafam-97509.bubbleapps.io/version-test/api/1.1/wf/update_canvas_data",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          collage_id: collageId,
+          canvas_data: JSON.stringify(dataToSave), // important: stringify here!
+        }),
+      }
+    )
       .then((res) => res.json())
-      .then((res) => console.log("✅ Saved via backend workflow:", res))
-      .catch((err) =>
-        console.error("❌ Failed to save via backend workflow:", err)
-      );
+      .then((res) => console.log("✅ Saved to Bubble:", res))
+      .catch((err) => console.error("❌ Failed to save:", err));
   };
 
   useEffect(() => {

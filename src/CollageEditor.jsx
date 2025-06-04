@@ -224,11 +224,11 @@ export default function CollageEditor() {
         const collageId = new URLSearchParams(window.location.search).get(
           "collage"
         );
-        const BUBBLE_API_TOKEN = "YOUR_API_TOKEN"; // <-- Replace this
-        const APP_NAME = "yourappname"; // <-- Replace with your Bubble app name
+        const BUBBLE_API_TOKEN = "cb3a163f625410e14d35c24d2e963036";
+        const APP_DOMAIN = "mostafam-97509.bubbleapps.io";
 
         fetch(
-          `https://${APP_NAME}.bubbleapps.io/api/1.1/obj/Collage/${collageId}`,
+          `https://${APP_DOMAIN}/version-test/api/1.1/obj/Collage/${collageId}`,
           {
             method: "PATCH",
             headers: {

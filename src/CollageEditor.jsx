@@ -192,18 +192,26 @@ export default function CollageEditor() {
   useEffect(() => {
     const interval = setInterval(() => {
       const data = {
-        strokes,
-        tapes,
-        imageElements,
-        stickers,
-        texts,
+        strokes: [...strokes],
+        tapes: [...tapes],
+        imageElements: [...imageElements],
+        stickers: [...stickers],
+        texts: [...texts],
       };
+
       console.log("📡 Posting SAVE_PROJECT", data);
-      window.parent.postMessage({ type: "SAVE_PROJECT", payload: data }, "*");
+
+      window.parent.postMessage(
+        {
+          type: "SAVE_PROJECT",
+          payload: JSON.stringify(data), // 🔥 critical: stringify here!
+        },
+        "*"
+      );
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [strokes, tapes, imageElements, stickers, texts]); // ✅ keep these
+  }, [strokes, tapes, imageElements, stickers, texts]);
 
   const clampToBounds = (x, y, width, height, canvasWidth, canvasHeight) => {
     const clampedX = Math.max(0, Math.min(x, canvasWidth - width));

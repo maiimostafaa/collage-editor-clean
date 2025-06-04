@@ -190,16 +190,14 @@ export default function CollageEditor() {
   }
 
   useEffect(() => {
-    const receiveMessage = (event) => {
-      if (event.data.type === "LOAD_PROJECT") {
-        console.log("📥 Received LOAD_PROJECT:", event.data.payload);
-        loadFromJson(event.data.payload);
-      }
-    };
-    window.addEventListener("message", receiveMessage);
-
     const interval = setInterval(() => {
-      const data = getCurrentCanvasState();
+      const data = {
+        strokes,
+        tapes,
+        imageElements,
+        stickers,
+        texts,
+      };
       console.log("📡 Posting SAVE_PROJECT", data);
       window.parent.postMessage(
         {
@@ -210,11 +208,8 @@ export default function CollageEditor() {
       );
     }, 5000);
 
-    return () => {
-      window.removeEventListener("message", receiveMessage);
-      clearInterval(interval);
-    };
-  }, [getCurrentCanvasState]);
+    return () => clearInterval(interval);
+  }, [strokes, tapes, imageElements, stickers, texts]);
 
   const clampToBounds = (x, y, width, height, canvasWidth, canvasHeight) => {
     const clampedX = Math.max(0, Math.min(x, canvasWidth - width));

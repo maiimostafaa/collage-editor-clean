@@ -189,31 +189,44 @@ export default function CollageEditor() {
     }, 0);
   }
 
+  const latestDataRef = useRef({});
+
+  useEffect(() => {
+    latestDataRef.current = {
+      strokes,
+      tapes,
+      imageElements,
+      stickers,
+      texts,
+    };
+  }, [strokes, tapes, imageElements, stickers, texts]);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log("🔁 Sync loop running every 5s");
+      const data = latestDataRef.current;
 
-      const data = {
-        strokes: [...strokes],
-        tapes: [...tapes],
-        imageElements: [...imageElements],
-        stickers: [...stickers],
-        texts: [...texts],
-      };
-
-      console.log("📤 Posting SAVE_PROJECT", data);
-
-      window.parent.postMessage(
-        {
-          type: "SAVE_PROJECT",
-          payload: JSON.stringify(data),
-        },
-        "*"
-      );
+      if (
+        data.strokes.length ||
+        data.tapes.length ||
+        data.imageElements.length ||
+        data.stickers.length ||
+        data.texts.length
+      ) {
+        console.log("📤 Posting SAVE_PROJECT", data);
+        window.parent.postMessage(
+          {
+            type: "SAVE_PROJECT",
+            payload: data,
+          },
+          "*"
+        );
+      } else {
+        console.log("⚠️ Skipping empty SAVE_PROJECT");
+      }
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [strokes, tapes, imageElements, stickers, texts]);
+  }, []);
 
   const clampToBounds = (x, y, width, height, canvasWidth, canvasHeight) => {
     const clampedX = Math.max(0, Math.min(x, canvasWidth - width));

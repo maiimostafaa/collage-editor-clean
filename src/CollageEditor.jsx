@@ -14,6 +14,9 @@ export default function CollageEditor() {
     return () => clearTimeout(timer);
   }, []);
 
+  //collage unique id
+  const collageId = new URLSearchParams(window.location.search).get("collage");
+
   //for git paths
   const base = import.meta.env.BASE_URL;
 
@@ -218,16 +221,30 @@ export default function CollageEditor() {
         data.stickers.length ||
         data.texts.length
       ) {
-        console.log("📤 Posting SAVE_PROJECT", data);
-        window.parent.postMessage(
-          {
-            type: "SAVE_PROJECT",
-            payload: data,
-          },
-          "*"
+        const collageId = new URLSearchParams(window.location.search).get(
+          "collage"
         );
+        const BUBBLE_API_TOKEN = "YOUR_API_TOKEN"; // <-- Replace this
+        const APP_NAME = "yourappname"; // <-- Replace with your Bubble app name
+
+        fetch(
+          `https://${APP_NAME}.bubbleapps.io/api/1.1/obj/Collage/${collageId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${BUBBLE_API_TOKEN}`,
+            },
+            body: JSON.stringify({
+              canvasData: data,
+            }),
+          }
+        )
+          .then((res) => res.json())
+          .then((res) => console.log("✅ Saved to Bubble API:", res))
+          .catch((err) => console.error("❌ Save failed:", err));
       } else {
-        console.log("⚠️ Skipping empty SAVE_PROJECT");
+        console.log("⚠️ Skipping save, empty data");
       }
     }, 5000);
 

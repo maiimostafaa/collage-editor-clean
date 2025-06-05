@@ -15,6 +15,16 @@ export default function CollageEditor() {
     return () => clearTimeout(timer);
   }, []);
 
+  const logDebug = (msg) => {
+    const panel = document.getElementById("debug-log");
+    if (panel) {
+      const line = document.createElement("div");
+      line.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      panel.appendChild(line);
+      panel.scrollTop = panel.scrollHeight;
+    }
+  };
+
   //collage unique id
   const getCollageId = () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -1037,6 +1047,13 @@ export default function CollageEditor() {
           }}
           style={{ width: "100%", height: "100%", position: "relative" }}
         >
+          <div
+            className="absolute top-2 left-2 bg-black text-green-400 text-xs p-2 rounded z-50 max-w-xs overflow-auto h-40"
+            id="debug-log"
+          >
+            <div>DEBUG PANEL</div>
+          </div>
+
           {/* Canvas */}
           <canvas
             ref={canvasRef}
@@ -1369,6 +1386,26 @@ export default function CollageEditor() {
             </motion.div>
           ))}
         </div>
+      </div>
+      <div
+        id="debug-log"
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          backgroundColor: "black",
+          color: "lime",
+          padding: "10px",
+          zIndex: 9999,
+          maxHeight: "150px",
+          overflowY: "auto",
+          fontFamily: "monospace",
+          fontSize: "12px",
+        }}
+      >
+        {debugMessages.map((msg, index) => (
+          <div key={index}>{msg}</div>
+        ))}
       </div>
     </div>
   );
